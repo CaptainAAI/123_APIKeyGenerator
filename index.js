@@ -205,3 +205,7 @@ app.get('/admin/users', authAdmin, async (req, res) => {
     res.status(500).json({ message: 'Gagal ambil data user' });
   }
 });
+
+app.listen(PORT, () => {
+  console.log('Server running on http://localhost:' + PORT);
+});
