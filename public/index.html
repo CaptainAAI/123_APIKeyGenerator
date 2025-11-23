@@ -1,0 +1,459 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>API Key Generator - Get Your Key</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            padding: 40px;
+            max-width: 600px;
+            width: 100%;
+            backdrop-filter: blur(10px);
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            color: #667eea;
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .header p {
+            color: #666;
+            font-size: 1.1em;
+        }
+
+        .key-icon {
+            font-size: 4em;
+            margin-bottom: 20px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            color: #333;
+            font-weight: 600;
+            margin-bottom: 8px;
+            font-size: 0.95em;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 1em;
+            transition: all 0.3s ease;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .btn {
+            width: 100%;
+            padding: 15px;
+            border: none;
+            border-radius: 10px;
+            font-size: 1.1em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-bottom: 10px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-secondary {
+            background: #f0f0f0;
+            color: #333;
+        }
+
+        .btn-secondary:hover {
+            background: #e0e0e0;
+        }
+
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .generated-key {
+            display: none;
+            background: #f8f9fa;
+            border: 2px dashed #667eea;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+            text-align: center;
+        }
+
+        .generated-key.show {
+            display: block;
+            animation: slideIn 0.4s ease;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .key-display {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            font-size: 1em;
+            color: #667eea;
+            font-weight: bold;
+            word-break: break-all;
+            margin: 10px 0;
+            border: 1px solid #e0e0e0;
+        }
+
+        .copy-btn {
+            background: #10b981;
+            color: white;
+            border: none;
+            padding: 8px 20px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.9em;
+            margin-top: 10px;
+            transition: all 0.3s ease;
+        }
+
+        .copy-btn:hover {
+            background: #059669;
+        }
+
+        .copy-btn.copied {
+            background: #667eea;
+        }
+
+        .alert {
+            padding: 12px 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            display: none;
+        }
+
+        .alert.show {
+            display: block;
+            animation: slideIn 0.4s ease;
+        }
+
+        .alert-success {
+            background: #d1fae5;
+            color: #065f46;
+            border: 1px solid #10b981;
+        }
+
+        .alert-error {
+            background: #fee2e2;
+            color: #991b1b;
+            border: 1px solid #ef4444;
+        }
+
+        .steps {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 30px;
+            position: relative;
+        }
+
+        .step {
+            flex: 1;
+            text-align: center;
+            position: relative;
+        }
+
+        .step-number {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: #e0e0e0;
+            color: #999;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 10px;
+            font-weight: bold;
+            transition: all 0.3s ease;
+        }
+
+        .step.active .step-number {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .step-title {
+            font-size: 0.85em;
+            color: #666;
+        }
+
+        .admin-link {
+            text-align: center;
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 1px solid #e0e0e0;
+        }
+
+        .admin-link a {
+            color: #667eea;
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        .admin-link a:hover {
+            text-decoration: underline;
+        }
+
+        @media (max-width: 600px) {
+            .container {
+                padding: 30px 20px;
+            }
+
+            .header h1 {
+                font-size: 2em;
+            }
+
+            .step-title {
+                font-size: 0.75em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="key-icon">🔑</div>
+            <h1>API Key Generator</h1>
+            <p>Generate your secure API key in seconds</p>
+        </div>
+
+        <div class="steps">
+            <div class="step active" id="step1">
+                <div class="step-number">1</div>
+                <div class="step-title">Generate Key</div>
+            </div>
+            <div class="step" id="step2">
+                <div class="step-number">2</div>
+                <div class="step-title">Fill Details</div>
+            </div>
+            <div class="step" id="step3">
+                <div class="step-number">3</div>
+                <div class="step-title">Complete</div>
+            </div>
+        </div>
+
+        <div class="alert alert-success" id="successAlert"></div>
+        <div class="alert alert-error" id="errorAlert"></div>
+
+        <!-- Step 1: Generate Key -->
+        <div id="generateSection">
+            <button class="btn btn-primary" onclick="generateKey()">
+                ✨ Generate New API Key
+            </button>
+        </div>
+
+        <!-- Step 2: Show Generated Key & Registration Form -->
+        <div id="registrationSection" style="display: none;">
+            <div class="generated-key">
+                <h3 style="color: #667eea; margin-bottom: 15px;">🎉 Your API Key</h3>
+                <div class="key-display" id="apiKeyDisplay"></div>
+                <button class="copy-btn" onclick="copyKey()">📋 Copy Key</button>
+                <p style="color: #666; margin-top: 15px; font-size: 0.9em;">
+                    ⚠️ Save this key securely! You'll need it to access our API.
+                </p>
+            </div>
+
+            <form id="registrationForm">
+                <div class="form-group">
+                    <label for="firstName">First Name *</label>
+                    <input type="text" id="firstName" required placeholder="John">
+                </div>
+
+                <div class="form-group">
+                    <label for="lastName">Last Name *</label>
+                    <input type="text" id="lastName" required placeholder="Doe">
+                </div>
+
+                <div class="form-group">
+                    <label for="email">Email Address *</label>
+                    <input type="email" id="email" required placeholder="john.doe@example.com">
+                </div>
+
+                <button type="submit" class="btn btn-primary">
+                    🚀 Complete Registration
+                </button>
+                <button type="button" class="btn btn-secondary" onclick="resetForm()">
+                    🔄 Start Over
+                </button>
+            </form>
+        </div>
+
+        <div class="admin-link">
+            <a href="/admin-login.html">🔐 Admin Login</a>
+        </div>
+    </div>
+
+    <script>
+        let currentApiKey = '';
+
+        async function generateKey() {
+            try {
+                const response = await fetch('/create', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                const data = await response.json();
+                
+                if (data.api_key) {
+                    currentApiKey = data.api_key;
+                    document.getElementById('apiKeyDisplay').textContent = currentApiKey;
+                    document.getElementById('generateSection').style.display = 'none';
+                    document.getElementById('registrationSection').style.display = 'block';
+                    
+                    // Update steps
+                    document.getElementById('step1').classList.remove('active');
+                    document.getElementById('step2').classList.add('active');
+                    
+                    // Show generated key animation
+                    document.querySelector('.generated-key').classList.add('show');
+                }
+            } catch (error) {
+                showAlert('error', 'Failed to generate API key. Please try again.');
+            }
+        }
+
+        function copyKey() {
+            navigator.clipboard.writeText(currentApiKey).then(() => {
+                const btn = event.target;
+                const originalText = btn.textContent;
+                btn.textContent = '✅ Copied!';
+                btn.classList.add('copied');
+                
+                setTimeout(() => {
+                    btn.textContent = originalText;
+                    btn.classList.remove('copied');
+                }, 2000);
+            });
+        }
+
+        document.getElementById('registrationForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const formData = {
+                first_name: document.getElementById('firstName').value,
+                last_name: document.getElementById('lastName').value,
+                email: document.getElementById('email').value,
+                api_key: currentApiKey
+            };
+
+            try {
+                const response = await fetch('/users', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(formData)
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    // Update steps
+                    document.getElementById('step2').classList.remove('active');
+                    document.getElementById('step3').classList.add('active');
+                    
+                    showAlert('success', '✅ Registration complete! Your API key is active for 30 days.');
+                    
+                    // Hide form, show success
+                    setTimeout(() => {
+                        document.getElementById('registrationForm').style.display = 'none';
+                    }, 1000);
+                } else {
+                    showAlert('error', data.message || 'Registration failed. Please try again.');
+                }
+            } catch (error) {
+                showAlert('error', 'Network error. Please check your connection and try again.');
+            }
+        });
+
+        function resetForm() {
+            currentApiKey = '';
+            document.getElementById('registrationForm').reset();
+            document.getElementById('generateSection').style.display = 'block';
+            document.getElementById('registrationSection').style.display = 'none';
+            document.querySelector('.generated-key').classList.remove('show');
+            
+            // Reset steps
+            document.getElementById('step2').classList.remove('active');
+            document.getElementById('step3').classList.remove('active');
+            document.getElementById('step1').classList.add('active');
+            
+            hideAlerts();
+        }
+
+        function showAlert(type, message) {
+            hideAlerts();
+            const alert = document.getElementById(type === 'success' ? 'successAlert' : 'errorAlert');
+            alert.textContent = message;
+            alert.classList.add('show');
+        }
+
+        function hideAlerts() {
+            document.getElementById('successAlert').classList.remove('show');
+            document.getElementById('errorAlert').classList.remove('show');
+        }
+    </script>
+</body>
+</html>
