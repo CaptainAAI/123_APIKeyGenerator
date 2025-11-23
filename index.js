@@ -181,3 +181,27 @@ app.post('/admin/login', async (req, res) => {
     res.status(500).json({ message: 'Gagal login' });
   }
 });
+
+// ================== ROUTES ADMIN PROTECTED ==================
+
+// GET /admin/users → list user + api key + status + expires_at
+app.get('/admin/users', authAdmin, async (req, res) => {
+  try {
+    const [rows] = await db.execute(`
+      SELECT u.id,
+             u.first_name,
+             u.last_name,
+             u.email,
+             k.api_key,
+             k.status,
+             k.expires_at
+      FROM users u
+      LEFT JOIN api_keys k ON k.user_id = u.id
+      ORDER BY u.created_at DESC
+    `);
+    res.json(rows);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: 'Gagal ambil data user' });
+  }
+});
