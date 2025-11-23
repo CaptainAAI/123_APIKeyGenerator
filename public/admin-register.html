@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Registration - API Key Manager</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #134e5e 0%, #71b280 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .register-container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            padding: 50px 40px;
+            max-width: 450px;
+            width: 100%;
+        }
+
+        .logo {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .logo-icon {
+            font-size: 4em;
+            margin-bottom: 15px;
+        }
+
+        .logo h1 {
+            color: #134e5e;
+            font-size: 2em;
+            margin-bottom: 5px;
+        }
+
+        .logo p {
+            color: #666;
+            font-size: 0.95em;
+        }
+
+        .form-group {
+            margin-bottom: 25px;
+        }
+
+        .form-group label {
+            display: block;
+            color: #333;
+            font-weight: 600;
+            margin-bottom: 8px;
+            font-size: 0.95em;
+        }
+
+        .input-wrapper {
+            position: relative;
+        }
+
+        .input-icon {
+            position: absolute;
+            left: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #999;
+            font-size: 1.2em;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 12px 15px 12px 45px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 1em;
+            transition: all 0.3s ease;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: #134e5e;
+            box-shadow: 0 0 0 3px rgba(19, 78, 94, 0.1);
+        }
+
+        .password-strength {
+            margin-top: 8px;
+            font-size: 0.85em;
+        }
+
+        .strength-bar {
+            height: 4px;
+            border-radius: 2px;
+            background: #e0e0e0;
+            margin-top: 5px;
+            overflow: hidden;
+        }
+
+        .strength-fill {
+            height: 100%;
+            width: 0%;
+            transition: all 0.3s ease;
+        }
+
+        .strength-weak { background: #ef4444; width: 33%; }
+        .strength-medium { background: #f59e0b; width: 66%; }
+        .strength-strong { background: #10b981; width: 100%; }
+
+        .btn {
+            width: 100%;
+            padding: 15px;
+            border: none;
+            border-radius: 10px;
+            font-size: 1.1em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #134e5e 0%, #71b280 100%);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(19, 78, 94, 0.3);
+        }
+
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .alert {
+            padding: 12px 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            display: none;
+        }
+
+        .alert.show {
+            display: block;
+            animation: slideIn 0.4s ease;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .alert-error {
+            background: #fee2e2;
+            color: #991b1b;
+            border: 1px solid #ef4444;
+        }
+
+        .alert-success {
+            background: #d1fae5;
+            color: #065f46;
+            border: 1px solid #10b981;
+        }
+
+        .info-box {
+            background: #e0f2fe;
+            border: 1px solid #0ea5e9;
+            border-radius: 8px;
+            padding: 12px 15px;
+            margin-bottom: 20px;
+            font-size: 0.9em;
+            color: #0c4a6e;
+        }
+
+        .links {
+            text-align: center;
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 1px solid #e0e0e0;
+        }
+
+        .links a {
+            color: #134e5e;
+            text-decoration: none;
+            font-weight: 600;
+            margin: 0 10px;
+        }
+
+        .links a:hover {
+            text-decoration: underline;
+        }
+
+        .divider {
+            margin: 10px 0;
+            color: #999;
+        }
+
+        @media (max-width: 600px) {
+            .register-container {
+                padding: 40px 25px;
+            }
+
+            .logo h1 {
+                font-size: 1.7em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="register-container">
+        <div class="logo">
+            <div class="logo-icon">👤</div>
+            <h1>Create Admin Account</h1>
+            <p>Register to manage API keys</p>
+        </div>
+
+        <div class="info-box">
+            ℹ️ Admin accounts have full access to view and manage all API keys and users.
+        </div>
+
+        <div class="alert alert-error" id="errorAlert"></div>
+        <div class="alert alert-success" id="successAlert"></div>
+
+        <form id="registerForm">
+            <div class="form-group">
+                <label for="email">Email Address</label>
+                <div class="input-wrapper">
+                    <span class="input-icon">📧</span>
+                    <input type="email" id="email" required placeholder="admin@example.com" autocomplete="email">
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="password">Password</label>
+                <div class="input-wrapper">
+                    <span class="input-icon">🔒</span>
+                    <input type="password" id="password" required placeholder="Enter a strong password" autocomplete="new-password">
+                </div>
+                <div class="password-strength">
+                    <div class="strength-bar">
+                        <div class="strength-fill" id="strengthFill"></div>
+                    </div>
+                    <span id="strengthText" style="color: #999; font-size: 0.9em;"></span>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="confirmPassword">Confirm Password</label>
+                <div class="input-wrapper">
+                    <span class="input-icon">🔒</span>
+                    <input type="password" id="confirmPassword" required placeholder="Re-enter your password" autocomplete="new-password">
+                </div>
+            </div>
+
+            <button type="submit" class="btn btn-primary" id="registerBtn">
+                ✨ Create Admin Account
+            </button>
+        </form>
+
+        <div class="links">
+            <a href="/admin-login.html">🔐 Already have an account? Login</a>
+            <div class="divider">•</div>
+            <a href="/">🏠 Back to Home</a>
+        </div>
+    </div>
+
+    <script>
+        const passwordInput = document.getElementById('password');
+        const strengthFill = document.getElementById('strengthFill');
+        const strengthText = document.getElementById('strengthText');
+
+        passwordInput.addEventListener('input', () => {
+            const password = passwordInput.value;
+            const strength = checkPasswordStrength(password);
+            
+            strengthFill.className = 'strength-fill';
+            
+            if (strength.score === 0) {
+                strengthText.textContent = '';
+            } else if (strength.score < 3) {
+                strengthFill.classList.add('strength-weak');
+                strengthText.textContent = '⚠️ Weak password';
+                strengthText.style.color = '#ef4444';
+            } else if (strength.score < 4) {
+                strengthFill.classList.add('strength-medium');
+                strengthText.textContent = '⚡ Medium strength';
+                strengthText.style.color = '#f59e0b';
+            } else {
+                strengthFill.classList.add('strength-strong');
+                strengthText.textContent = '✅ Strong password';
+                strengthText.style.color = '#10b981';
+            }
+        });
+
+        function checkPasswordStrength(password) {
+            let score = 0;
+            if (!password) return { score: 0 };
+            
+            // Length
+            if (password.length >= 8) score++;
+            if (password.length >= 12) score++;
+            
+            // Contains lowercase and uppercase
+            if (/[a-z]/.test(password) && /[A-Z]/.test(password)) score++;
+            
+            // Contains numbers
+            if (/\d/.test(password)) score++;
+            
+            // Contains special characters
+            if (/[^A-Za-z0-9]/.test(password)) score++;
+            
+            return { score: Math.min(score, 5) };
+        }
+
+        document.getElementById('registerForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const password = document.getElementById('password').value;
+            const confirmPassword = document.getElementById('confirmPassword').value;
+            
+            if (password !== confirmPassword) {
+                showAlert('error', '❌ Passwords do not match!');
+                return;
+            }
+
+            if (password.length < 6) {
+                showAlert('error', '❌ Password must be at least 6 characters long!');
+                return;
+            }
+
+            const btn = document.getElementById('registerBtn');
+            btn.disabled = true;
+            btn.textContent = '⏳ Creating account...';
+
+            const formData = {
+                email: document.getElementById('email').value,
+                password: password
+            };
+
+            try {
+                const response = await fetch('/admin/register', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(formData)
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    showAlert('success', '✅ Account created successfully! Redirecting to login...');
+                    
+                    // Redirect to login after 2 seconds
+                    setTimeout(() => {
+                        window.location.href = '/admin-login.html';
+                    }, 2000);
+                } else {
+                    showAlert('error', data.message || '❌ Registration failed. Please try again.');
+                    btn.disabled = false;
+                    btn.textContent = '✨ Create Admin Account';
+                }
+            } catch (error) {
+                showAlert('error', '❌ Network error. Please check your connection and try again.');
+                btn.disabled = false;
+                btn.textContent = '✨ Create Admin Account';
+            }
+        });
+
+        function showAlert(type, message) {
+            hideAlerts();
+            const alert = document.getElementById(type === 'success' ? 'successAlert' : 'errorAlert');
+            alert.textContent = message;
+            alert.classList.add('show');
+        }
+
+        function hideAlerts() {
+            document.getElementById('successAlert').classList.remove('show');
+            document.getElementById('errorAlert').classList.remove('show');
+        }
+    </script>
+</body>
+</html>
